@@ -21,8 +21,9 @@ class Apartment extends Model
         return $this->hasMany(Reservation::class);
     }
 	
-	public function user(): HasOne
+	public function user()
 	{
-		return $this->belongsTo(User::class);
+		return $this->belongsTo(User::class,'landlord_id','id');
+		
 	}
 }

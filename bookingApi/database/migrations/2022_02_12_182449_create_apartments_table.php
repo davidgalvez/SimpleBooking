@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('landlord_id')->constrained('users');
             $table->string('title', 200);
+			$table->string('description', 250);
             $table->boolean('available');
             $table->timestamps();
         });
