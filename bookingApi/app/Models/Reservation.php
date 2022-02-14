@@ -10,7 +10,7 @@ class Reservation extends Model
 {
     use HasFactory;
 	
-	public function apartment(): HasOne
+	public function apartment()
 	{
 		return $this->belongsTo(Apartment::class);
 	}

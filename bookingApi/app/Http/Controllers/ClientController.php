@@ -8,6 +8,8 @@ use App\Models\Apartment;
 use App\Models\Reservation;
 use App\Models\Feature;
 use App\Models\User;
+use Notification;
+use App\Notifications\RequestReservation;
 
 class ClientController extends Controller
 {
@@ -28,7 +30,7 @@ class ClientController extends Controller
 		$apartments = Apartment::where('available',true)
 				->whereHas('features', function($q) use($filterFeatures){
 
-    			               $q->whereIn('feature_id', $filterFeatures); //this refers id field from features table
+    			               $q->whereIn('feature_id', $filterFeatures); 
 
 		             })
                  ->with('features:id,name')
@@ -36,8 +38,24 @@ class ClientController extends Controller
 				 
 		return response()->json($apartments);
 	}
+	public function getApartment($id)
+    {
+        $apartment = Apartment::find($id);
+		
+		if($apartment===null){
+				return response()->json([
+					"Error" =>"The apartment doesnt exist"
+				]);
+			} 
+		
+		$features = $apartment->features;
+		
+		
+		return response()->json($apartment);
+
+    }
 	
-	public function requestReservation(Request $request)
+	public function requestApartmentReservation(Request $request)
 	{
 		$minbirthdate=$this::getMinDate();
 		
@@ -71,7 +89,9 @@ class ClientController extends Controller
 				$reservation->confirmed=false;
                 $reservation->save();
 				
-								
+				$apartment=Apartment::find($reservation->apartment_id);
+				$user=User::find($apartment->landlord_id);
+				$this::sendNotification($user,$reservation->id);		
 				
                 return  response()->json([
                     'status' => 'ok',
@@ -86,6 +106,17 @@ class ClientController extends Controller
 
             }
 		
+	}
+	private function sendNotification($user,$reservation_id)
+	{
+		$details=[
+			'body' => 'New reservation request!',
+			'actionText' => 'Please confirm the request',
+			'actionUrl' => 'http://localhost:3000/confirm_reservation/'.$reservation_id,
+			'thanks' => 'Thans for using booking app',
+			'reservation_id' => $reservation_id,
+		];
+		Notification::send($user, new RequestReservation($details));
 	}
 	private function getMinDate(){
 		$today = date('Y-m-d'); 

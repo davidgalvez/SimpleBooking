@@ -13,13 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('apartments');
-        Schema::create('apartments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('landlord_id')->constrained('users');
-            $table->string('title', 200);
-            $table->boolean('available');
-            $table->timestamps();
+        Schema::table('apartments', function (Blueprint $table) {
+            $table->string('description', 250)->after('title');
         });
     }
 
@@ -31,8 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('apartments', function (Blueprint $table) {
-            $table->dropForeign(['landlord_id']);
+            $table->dropColumn('description');
         });
-        Schema::dropIfExists('apartments');
     }
 };

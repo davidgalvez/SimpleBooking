@@ -43,5 +43,6 @@ Route::group([
 	'prefix' => 'user'
 ], function() {
     Route::post('/get_apartments/', 'App\Http\Controllers\ClientController@getApartments');
-	Route::post('/request_reservation/', 'App\Http\Controllers\ClientController@requestReservation');
+	Route::get('/get_apartment/{id}/', 'App\Http\Controllers\ClientController@getApartment');
+	Route::post('/request_reservation/', 'App\Http\Controllers\ClientController@requestApartmentReservation');
 });

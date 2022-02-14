@@ -14,6 +14,13 @@ class LandlordController extends Controller
 	public function getApartment($id)
         {
             $apartment = Apartment::find($id);
+			
+			if($apartment===null){
+				return response()->json([
+					"Error" =>"The apartment doesnt exist"
+				]);
+			} 
+			
 			$features = $apartment->features;
 			
 			
@@ -58,6 +65,7 @@ class LandlordController extends Controller
 				$apartment = new Apartment;
 				$apartment->landlord_id=$request->get('landlord_id');
 				$apartment->title=$request->get('title');
+				$apartment->description=$request->get('description');
 				$apartment->available=$request->get('available');
                 $apartment->save();
 				
@@ -104,6 +112,7 @@ class LandlordController extends Controller
             try{
 				$apartment = Apartment::find($id);
 				$apartment->title=$request->get('title');
+				$apartment->description=$request->get('description');
 				$apartment->available=$request->get('available');
                 $apartment->save();
 				
@@ -134,13 +143,18 @@ class LandlordController extends Controller
 			
 			try{
 				$reservation=Reservation::find($id);
+				if($reservation===null){
+					return response()->json([
+						"Error" =>"Reservation not found!"
+					]);
+				} 
 				$apartment=$reservation->apartment;
 				if($apartment->available==false){
 					$error=[
 						"statusApartment"=>$apartment->available
 						];
 					return response()->json(
-                    $this::responseError($exception->getMessage(),"The apartment is not available")
+                    $this::responseError($error,"The apartment is not available")
 					,500);
 				}
 				$reservation->confirmed=true;
@@ -148,6 +162,11 @@ class LandlordController extends Controller
 				
 				$apartment->available=false;
 				$apartment->save();
+				
+				return  response()->json([
+                    'status' => 'ok',
+                    'message' => 'Reservation Confirmed!.'
+                ]);
 				
 			}catch(Exception  $exception) {
 
